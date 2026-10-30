@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Todo Fuego - Parrilla & Catering Gourmet</title>
+<meta name="description" content="Servicio de parrilla, finger food y catering gourmet para tus eventos con cotización directa por WhatsApp.">
+<meta property="og:title" content="A Todo Fuego - Parrilla & Catering Gourmet">
+<meta property="og:description" content="Servicio de parrilla, finger food y catering gourmet para tus eventos con cotización directa por WhatsApp.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+<script>
+tailwind.config={theme:{extend:{colors:{brand:{black:'#0D0D0D',primary:'#F4511E',accent1:'#D62828',accent2:'#FF7A00',micro:'#FFC107',text1:'#FFF3E0',text2:'#BDBDBD',whatsapp:'#1CC37A',whatsappHover:'#17A366'}},fontFamily:{display:['Oswald','sans-serif'],body:['"Plus Jakarta Sans"','sans-serif']},boxShadow:{whatsapp:'0 0 20px rgba(28,195,122,.3)','whatsapp-strong':'0 0 25px rgba(28,195,122,.6)'}}}}
+</script>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body class="font-body antialiased selection:bg-brand-whatsapp selection:text-white pb-24 bg-[#0D0D0D] text-brand-text1">
+
+<!-- Realistic Fire Splash Screen -->
+<div id="splash" aria-hidden="true">
+  <div id="logo">
+    <div class="em">🔥</div>
+    <h1 class="font-display text-5xl md:text-8xl font-bold tracking-wider uppercase leading-none mt-3 text-white">A Todo <span class="text-fire">Fuego</span></h1>
+    <p class="text-brand-accent2 font-bold text-xs md:text-sm tracking-[.35em] uppercase mt-4">Parrilla & Catering Gourmet</p>
+  </div>
+  <canvas id="fire"></canvas>
+  <div class="splash-controls">
+    <button id="skip" type="button">Ingresar al Menú</button>
+  </div>
+</div>
+
+<div id="main-content" class="min-h-screen opacity-100">
+  <nav class="w-full z-40 border-b border-white/5 sticky top-0 backdrop-blur-md bg-[#0D0D0D]/90">
+    <div class="max-w-[1400px] mx-auto px-4 md:px-8 h-20 flex justify-between items-center">
+      <div class="font-display font-bold text-2xl tracking-wide uppercase flex items-center gap-2">
+        <i class="ph-fill ph-fire text-brand-accent2 text-3xl"></i>
+        <span class="text-white">A Todo Fuego</span>
+      </div>
+      <div class="hidden lg:flex items-center gap-6">
+        <a href="#grid" class="text-brand-text2 hover:text-white text-sm font-semibold transition-colors">Nuestros Menús</a>
+        <a href="#gallery-section" class="text-brand-text2 hover:text-white text-sm font-semibold transition-colors flex items-center gap-1.5">
+          <i class="ph-bold ph-camera text-brand-primary"></i> Fotos Reales
+        </a>
+        <button type="button" data-replay-fire class="text-brand-accent2 hover:text-brand-primary text-xs font-bold uppercase tracking-wider border border-brand-accent2/30 px-3.5 py-1.5 rounded-full hover:bg-brand-accent2/10 transition-all flex items-center gap-1.5">
+          <i class="ph-fill ph-fire text-sm"></i> FUEGO VIVO
+        </button>
+        <button data-wa="Consulta General de Catering" class="bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-whatsapp transition-all flex items-center gap-2 active:scale-95">
+          <i class="ph-bold ph-whatsapp text-lg"></i>CONSULTA WHATSAPP
+        </button>
+      </div>
+      <div class="lg:hidden flex items-center gap-2">
+        <button type="button" data-replay-fire aria-label="Ver fuego vivo" class="text-brand-accent2 p-2 text-2xl"><i class="ph-fill ph-fire"></i></button>
+        <button data-wa="Consulta General de Catering" aria-label="Consultar por WhatsApp" class="text-brand-whatsapp p-2 text-3xl"><i class="ph-fill ph-whatsapp"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <header class="px-4 pt-12 pb-10 text-center max-w-[1000px] mx-auto">
+    <div class="inline-flex items-center gap-2 border border-brand-accent2 text-brand-accent2 uppercase font-bold text-xs tracking-wider px-4 py-1.5 rounded-full mb-6 bg-brand-accent2/10">
+      <i class="ph-bold ph-fire text-sm"></i>Parrilla Gourmet · Finger Food · Showcooking
+    </div>
+    <h2 class="font-display text-4xl md:text-[4.5rem] leading-[1.1] font-bold uppercase text-white mb-6">
+      Elegí tu menú y <span class="text-brand-accent2 block md:inline mt-2 md:mt-0">pedí por<br class="hidden md:block"> WhatsApp</span>
+    </h2>
+    <p class="text-brand-text2 text-base md:text-xl max-w-2xl mx-auto">
+      Especialidades a la parrilla, opciones de finger food, carnes a las brasas y pastelería artesanal para eventos sociales y corporativos.
+    </p>
+  </header>
+
+  <main class="max-w-[1400px] mx-auto px-4 md:px-8 pb-16">
+    <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"></div>
+  </main>
+
+  <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-2xl">
+    <div class="bg-[#181818] border border-white/10 rounded-full p-2 pl-4 flex items-center justify-between shadow-[0_10px_40px_rgba(0,0,0,.85)] backdrop-blur-xl">
+      <div class="flex items-center gap-3 overflow-hidden">
+        <div class="w-10 h-10 rounded-full bg-brand-black flex items-center justify-center shrink-0 border border-brand-accent2/30"><i class="ph-fill ph-fire text-brand-accent2 text-xl"></i></div>
+        <div class="flex flex-col truncate">
+          <p class="text-[10px] md:text-xs text-brand-text2 uppercase font-bold tracking-wide">¿Tenés un evento o consulta?</p>
+          <p class="text-sm md:text-base text-white font-display font-bold uppercase truncate">Hablá directo con nuestro equipo</p>
+        </div>
+      </div>
+      <button data-wa="Consulta de Catering y Eventos" class="bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold text-sm py-3 px-5 md:px-8 rounded-full shadow-whatsapp-strong active:scale-95 flex items-center gap-2 shrink-0 ml-2">
+        <i class="ph-bold ph-paper-plane-right text-xl"></i><span class="hidden sm:inline">WHATSAPP</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+</body>
+</html>

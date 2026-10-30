@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>A Todo Fuego | Parrilla & Catering Gourmet</title>
-<meta name="description" content="Parrilla, finger food y catering gourmet para tus eventos. Elegí tu menú y pedí por WhatsApp.">
+<title>A Todo Fuego - Parrilla & Catering Gourmet</title>
+<meta name="description" content="Servicio de parrilla, finger food y catering gourmet para tus eventos con cotización directa por WhatsApp.">
+<meta property="og:title" content="A Todo Fuego - Parrilla & Catering Gourmet">
+<meta property="og:description" content="Servicio de parrilla, finger food y catering gourmet para tus eventos con cotización directa por WhatsApp.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,16 +18,19 @@ tailwind.config={theme:{extend:{colors:{brand:{black:'#0D0D0D',primary:'#F4511E'
 </script>
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body class="font-body antialiased selection:bg-brand-whatsapp selection:text-white pb-24">
+<body class="font-body antialiased selection:bg-brand-whatsapp selection:text-white pb-24 bg-[#0D0D0D] text-brand-text1">
 
+<!-- Realistic Fire Splash Screen -->
 <div id="splash" aria-hidden="true">
   <div id="logo">
     <div class="em">🔥</div>
-    <h1 class="font-display text-5xl md:text-8xl font-bold tracking-wider uppercase leading-none mt-3">A Todo <span class="text-fire">Fuego</span></h1>
+    <h1 class="font-display text-5xl md:text-8xl font-bold tracking-wider uppercase leading-none mt-3 text-white">A Todo <span class="text-fire">Fuego</span></h1>
     <p class="text-brand-accent2 font-bold text-xs md:text-sm tracking-[.35em] uppercase mt-4">Parrilla & Catering Gourmet</p>
   </div>
   <canvas id="fire"></canvas>
-  <button id="skip" type="button">Saltar</button>
+  <div class="splash-controls">
+    <button id="skip" type="button">Ingresar al Menú</button>
+  </div>
 </div>
 
 <div id="main-content" class="min-h-screen opacity-100">
@@ -36,26 +41,37 @@ tailwind.config={theme:{extend:{colors:{brand:{black:'#0D0D0D',primary:'#F4511E'
         <span class="text-white">A Todo Fuego</span>
       </div>
       <div class="hidden lg:flex items-center gap-6">
-        <span class="text-brand-text2 text-sm">Servicio de Parrilla & Catering</span>
-        <button data-wa="Consulta General de Catering" class="bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-whatsapp transition-all flex items-center gap-2">
+        <a href="#grid" class="text-brand-text2 hover:text-white text-sm font-semibold transition-colors">Nuestros Menús</a>
+        <a href="#gallery-section" class="text-brand-text2 hover:text-white text-sm font-semibold transition-colors flex items-center gap-1.5">
+          <i class="ph-bold ph-camera text-brand-primary"></i> Fotos Reales
+        </a>
+        <button type="button" data-replay-fire class="text-brand-accent2 hover:text-brand-primary text-xs font-bold uppercase tracking-wider border border-brand-accent2/30 px-3.5 py-1.5 rounded-full hover:bg-brand-accent2/10 transition-all flex items-center gap-1.5">
+          <i class="ph-fill ph-fire text-sm"></i> FUEGO VIVO
+        </button>
+        <button data-wa="Consulta General de Catering" class="bg-brand-whatsapp hover:bg-brand-whatsappHover text-white font-bold text-sm px-6 py-2.5 rounded-full shadow-whatsapp transition-all flex items-center gap-2 active:scale-95">
           <i class="ph-bold ph-whatsapp text-lg"></i>CONSULTA WHATSAPP
         </button>
       </div>
-      <button data-wa="Consulta General de Catering" aria-label="Consultar por WhatsApp" class="lg:hidden text-brand-whatsapp p-2 text-3xl"><i class="ph-fill ph-whatsapp"></i></button>
+      <div class="lg:hidden flex items-center gap-2">
+        <button type="button" data-replay-fire aria-label="Ver fuego vivo" class="text-brand-accent2 p-2 text-2xl"><i class="ph-fill ph-fire"></i></button>
+        <button data-wa="Consulta General de Catering" aria-label="Consultar por WhatsApp" class="text-brand-whatsapp p-2 text-3xl"><i class="ph-fill ph-whatsapp"></i></button>
+      </div>
     </div>
   </nav>
 
   <header class="px-4 pt-12 pb-10 text-center max-w-[1000px] mx-auto">
     <div class="inline-flex items-center gap-2 border border-brand-accent2 text-brand-accent2 uppercase font-bold text-xs tracking-wider px-4 py-1.5 rounded-full mb-6 bg-brand-accent2/10">
-      <i class="ph-bold ph-fire text-sm"></i>Menú gourmet y eventos especiales
+      <i class="ph-bold ph-fire text-sm"></i>Parrilla Gourmet · Finger Food · Showcooking
     </div>
     <h2 class="font-display text-4xl md:text-[4.5rem] leading-[1.1] font-bold uppercase text-white mb-6">
       Elegí tu menú y <span class="text-brand-accent2 block md:inline mt-2 md:mt-0">pedí por<br class="hidden md:block"> WhatsApp</span>
     </h2>
-    <p class="text-brand-text2 text-base md:text-xl max-w-2xl mx-auto">Especialidades a la parrilla, opciones de finger food y catering completo para tus eventos.</p>
+    <p class="text-brand-text2 text-base md:text-xl max-w-2xl mx-auto">
+      Especialidades a la parrilla, opciones de finger food, carnes a las brasas y pastelería artesanal para eventos sociales y corporativos.
+    </p>
   </header>
 
-  <main class="max-w-[1400px] mx-auto px-4 md:px-8 pb-32">
+  <main class="max-w-[1400px] mx-auto px-4 md:px-8 pb-16">
     <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"></div>
   </main>
 

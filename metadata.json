@@ -1,0 +1,6 @@
+{
+  "name": "A Todo Fuego - Parrilla & Catering Gourmet",
+  "description": "Servicio de parrilla, finger food y catering gourmet para tus eventos con cotización directa por WhatsApp.",
+  "permissions": [],
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

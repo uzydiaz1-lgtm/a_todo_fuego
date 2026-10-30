@@ -1,0 +1,15 @@
+{
+  "name": "a-todo-fuego",
+  "version": "1.0.0",
+  "description": "A Todo Fuego - Parrilla & Catering Gourmet",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "build": "node -e \"console.log('Build completed successfully')\"",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,268 @@
+/* A Todo Fuego - Stylesheet */
+
+@keyframes pulseFlame {
+  0%, 100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 122, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 35px rgba(244, 81, 30, 0.9));
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 0.96; }
+  20% { opacity: 0.85; }
+  40% { opacity: 1; }
+  60% { opacity: 0.88; }
+  80% { opacity: 0.98; }
+}
+
+@keyframes emberFloat {
+  0% { transform: translateY(0) translateX(0); opacity: 1; }
+  100% { transform: translateY(-120px) translateX(25px); opacity: 0; }
+}
+
+.text-fire {
+  background: linear-gradient(135deg, #FFF176 0%, #FFC107 20%, #FF7A00 50%, #F4511E 75%, #D62828 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  display: inline-block;
+  animation: flicker 3s ease-in-out infinite;
+}
+
+/* Splash Screen */
+#splash {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background-color: #070707;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#splash.hidden-splash {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#splash #logo {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  padding: 0 1.5rem;
+  user-select: none;
+}
+
+#splash .em {
+  font-size: 4.5rem;
+  line-height: 1;
+  display: inline-block;
+  animation: pulseFlame 1.8s infinite ease-in-out;
+}
+
+#fire {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.splash-controls {
+  position: absolute;
+  bottom: 2.5rem;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+#skip, .splash-btn {
+  padding: 0.65rem 1.8rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(20, 20, 20, 0.6);
+  backdrop-filter: blur(12px);
+  color: #FFF3E0;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.875rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#skip:hover, .splash-btn:hover {
+  background: rgba(244, 81, 30, 0.25);
+  border-color: #FF7A00;
+  color: #FF7A00;
+  box-shadow: 0 0 25px rgba(255, 122, 0, 0.4);
+  transform: translateY(-2px);
+}
+
+#skip:active, .splash-btn:active {
+  transform: translateY(0);
+}
+
+/* Menu card styling */
+.menu-card {
+  background: #141414;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease;
+  position: relative;
+}
+
+.menu-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(255, 122, 0, 0.5);
+  box-shadow: 0 20px 40px -10px rgba(244, 81, 30, 0.25), 0 0 1px 1px rgba(255, 122, 0, 0.3);
+}
+
+.menu-card-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 230px;
+  overflow: hidden;
+  background-color: #1e1e1e;
+}
+
+.menu-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.menu-card:hover .menu-card-img-wrap img {
+  transform: scale(1.08);
+}
+
+.menu-card-img-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(20, 20, 20, 1) 0%, rgba(20, 20, 20, 0.4) 40%, transparent 100%);
+  pointer-events: none;
+}
+
+.menu-card-badge {
+  font-family: 'Oswald', sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 0.75rem;
+}
+
+/* Gallery Photo Cards */
+.gallery-card {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  background: #181818;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 122, 0, 0.6);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 122, 0, 0.25);
+}
+
+.gallery-card img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.gallery-card:hover img {
+  transform: scale(1.06);
+}
+
+.gallery-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.25rem;
+  transition: opacity 0.3s ease;
+}
+
+/* Modal styles for custom quote & Lightbox */
+.wa-modal-backdrop, .lightbox-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.wa-modal-backdrop.active, .lightbox-backdrop.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wa-modal, .lightbox-modal {
+  background: #161616;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  max-width: 520px;
+  width: 100%;
+  padding: 2rem;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.95), 0 0 35px rgba(244, 81, 30, 0.2);
+  transform: scale(0.94);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lightbox-modal {
+  max-width: 850px;
+  padding: 1.25rem;
+  background: #111111;
+}
+
+.wa-modal-backdrop.active .wa-modal,
+.lightbox-backdrop.active .lightbox-modal {
+  transform: scale(1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d0d;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #f4511e;
+}
