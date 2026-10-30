@@ -7,349 +7,98 @@
   const WHATSAPP_PHONE = '5491123456789';
 
   // ==========================================
-  // 1. REALISTIC FIRE SIMULATION (CANVAS)
+  // 1. BRAND VIDEO INTRO
   // ==========================================
   const splash = document.getElementById('splash');
   const skipBtn = document.getElementById('skip');
-  const canvas = document.getElementById('fire');
+  const introVideo = document.getElementById('intro-video');
+  const soundBtn = document.getElementById('video-sound-btn');
+  const soundIcon = document.getElementById('sound-icon');
 
-  let fireAnimationId = null;
-  let isFireRunning = false;
-  let flameParticles = [];
-  let emberParticles = [];
-  let smokeParticles = [];
-
-  const FLAME_COUNT = 240;
-  const EMBER_COUNT = 130;
-  const SMOKE_COUNT = 45;
-
-  function initFireCanvas() {
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // --- Flame Particle (Core, hot tongues of fire) ---
-    class FlameParticle {
-      constructor() {
-        this.reset(true);
-      }
-
-      reset(initial = false) {
-        const hearthWidth = Math.min(canvas.width * 0.75, 620);
-        const center = canvas.width * 0.5;
-        // Bell curve distribution around center
-        const u = Math.random() + Math.random() - 1;
-        this.x = center + u * (hearthWidth * 0.5);
-        this.y = canvas.height * 0.94 + Math.random() * 25;
-
-        // Upward buoyancy with slight horizontal drift
-        const distFromCenter = (this.x - center) / (hearthWidth * 0.5);
-        this.vx = -distFromCenter * 0.8 + (Math.random() - 0.5) * 1.5;
-        this.vy = -(Math.random() * 4.2 + 3.8);
-
-        this.size = Math.random() * 28 + 20;
-        this.initialSize = this.size;
-        this.life = initial ? Math.random() * 50 : 0;
-        this.maxLife = Math.random() * 42 + 36;
-        this.stretchY = Math.random() * 0.6 + 1.4; // Vertical stretch
-        this.turbPhase = Math.random() * Math.PI * 2;
-      }
-
-      update(time) {
-        this.life++;
-        const progress = this.life / this.maxLife;
-
-        // Turbulence
-        this.x += this.vx + Math.sin(time * 0.05 + this.turbPhase) * 1.2;
-        this.y += this.vy;
-
-        // Size curve: swells at first, then shrinks into flame tongue tip
-        if (progress < 0.25) {
-          this.size = this.initialSize * (1 + progress * 0.6);
-        } else {
-          this.size = this.initialSize * 1.15 * (1 - (progress - 0.25) / 0.75);
-        }
-
-        if (this.life >= this.maxLife || this.size <= 0.8) {
-          this.reset();
-        }
-      }
-
-      draw(c) {
-        const progress = this.life / this.maxLife;
-        c.save();
-        c.translate(this.x, this.y);
-        c.scale(1, this.stretchY);
-
-        let colorStop0, colorStop1, colorStop2, alpha;
-
-        if (progress < 0.2) {
-          // White-hot core (Hearth ignition)
-          alpha = (1 - progress * 0.4) * 0.85;
-          colorStop0 = `rgba(255, 255, 230, ${alpha})`;
-          colorStop1 = `rgba(255, 205, 70, ${alpha * 0.8})`;
-          colorStop2 = `rgba(255, 100, 0, 0)`;
-        } else if (progress < 0.55) {
-          // Pure golden-orange combustion
-          alpha = (1 - (progress - 0.2) / 0.35 * 0.3) * 0.75;
-          colorStop0 = `rgba(255, 185, 30, ${alpha})`;
-          colorStop1 = `rgba(255, 80, 0, ${alpha * 0.75})`;
-          colorStop2 = `rgba(215, 25, 0, 0)`;
-        } else {
-          // Deep crimson flame tips
-          alpha = (1 - (progress - 0.55) / 0.45) * 0.65;
-          colorStop0 = `rgba(240, 65, 10, ${alpha})`;
-          colorStop1 = `rgba(180, 20, 5, ${alpha * 0.6})`;
-          colorStop2 = `rgba(80, 5, 0, 0)`;
-        }
-
-        const radGrad = c.createRadialGradient(0, 0, 0, 0, 0, Math.max(1, this.size));
-        radGrad.addColorStop(0, colorStop0);
-        radGrad.addColorStop(0.45, colorStop1);
-        radGrad.addColorStop(1, colorStop2);
-
-        c.fillStyle = radGrad;
-        c.beginPath();
-        c.arc(0, 0, Math.max(1, this.size), 0, Math.PI * 2);
-        c.fill();
-        c.restore();
-      }
-    }
-
-    // --- Ember Particle (Realistic swirling sparks from burning wood) ---
-    class EmberParticle {
-      constructor() {
-        this.reset(true);
-      }
-
-      reset(initial = false) {
-        const hearthWidth = Math.min(canvas.width * 0.8, 650);
-        this.x = canvas.width * 0.5 + (Math.random() - 0.5) * hearthWidth;
-        this.y = canvas.height * 0.92 + Math.random() * 40;
-        this.vx = (Math.random() - 0.5) * 1.8;
-        this.vy = -(Math.random() * 3.8 + 2.4);
-        this.size = Math.random() * 2.8 + 1.2;
-        this.life = initial ? Math.random() * 70 : 0;
-        this.maxLife = Math.random() * 60 + 55;
-        this.flickerSpeed = Math.random() * 0.35 + 0.15;
-        this.swirlSpeed = Math.random() * 0.04 + 0.02;
-        this.swirlRadius = Math.random() * 35 + 15;
-        this.colorType = Math.random();
-      }
-
-      update(time) {
-        this.life++;
-        const progress = this.life / this.maxLife;
-
-        // Spiral convection upward
-        this.x += this.vx + Math.cos(time * this.swirlSpeed + this.life * 0.1) * 1.6;
-        this.y += this.vy;
-        this.vy *= 0.995; // slight deceleration as air cools
-
-        if (this.life >= this.maxLife || this.y < canvas.height * 0.12) {
-          this.reset();
-        }
-      }
-
-      draw(c, time) {
-        const progress = this.life / this.maxLife;
-        const flicker = Math.sin(time * this.flickerSpeed + this.life) * 0.3 + 0.7;
-        const alpha = (1 - progress) * flicker;
-
-        c.save();
-        c.shadowBlur = 12;
-        if (this.colorType > 0.4) {
-          c.fillStyle = `rgba(255, 230, 130, ${alpha})`;
-          c.shadowColor = `rgba(255, 170, 0, ${alpha})`;
-        } else {
-          c.fillStyle = `rgba(255, 120, 20, ${alpha})`;
-          c.shadowColor = `rgba(244, 81, 30, ${alpha})`;
-        }
-
-        c.beginPath();
-        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        c.fill();
-        c.restore();
-      }
-    }
-
-    // --- Smoke Particle (Wisps drifting up into the dark) ---
-    class SmokeParticle {
-      constructor() {
-        this.reset(true);
-      }
-
-      reset(initial = false) {
-        this.x = canvas.width * 0.5 + (Math.random() - 0.5) * 350;
-        this.y = canvas.height * 0.65 + Math.random() * 60;
-        this.vx = (Math.random() - 0.5) * 1.5;
-        this.vy = -(Math.random() * 1.8 + 1.2);
-        this.size = Math.random() * 25 + 20;
-        this.maxLife = Math.random() * 65 + 50;
-        this.life = initial ? Math.random() * this.maxLife : 0;
-      }
-
-      update() {
-        this.life++;
-        this.x += this.vx + (Math.random() - 0.5) * 0.6;
-        this.y += this.vy;
-        this.size += 0.45; // Expands as it rises
-
-        if (this.life >= this.maxLife || this.y < 0) {
-          this.reset();
-        }
-      }
-
-      draw(c) {
-        const progress = this.life / this.maxLife;
-        const alpha = Math.sin(progress * Math.PI) * 0.08;
-
-        c.save();
-        c.fillStyle = `rgba(45, 30, 25, ${alpha})`;
-        c.beginPath();
-        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        c.fill();
-        c.restore();
-      }
-    }
-
-    // Initialize particle arrays
-    flameParticles = [];
-    emberParticles = [];
-    smokeParticles = [];
-
-    for (let i = 0; i < FLAME_COUNT; i++) flameParticles.push(new FlameParticle());
-    for (let i = 0; i < EMBER_COUNT; i++) emberParticles.push(new EmberParticle());
-    for (let i = 0; i < SMOKE_COUNT; i++) smokeParticles.push(new SmokeParticle());
-
-    let frameCount = 0;
-
-    function render() {
-      frameCount++;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      // 1. Draw Hearth Bed Glow (The glowing bed of burning wood)
-      const hearthW = Math.min(canvas.width * 0.85, 750);
-      const hearthH = 160;
-      const hearthGlow = ctx.createRadialGradient(
-        canvas.width * 0.5,
-        canvas.height * 0.96,
-        10,
-        canvas.width * 0.5,
-        canvas.height * 0.96,
-        hearthW * 0.55
-      );
-      const pulse = Math.sin(frameCount * 0.08) * 0.12 + 0.88;
-      hearthGlow.addColorStop(0, `rgba(255, 230, 150, ${0.45 * pulse})`);
-      hearthGlow.addColorStop(0.35, `rgba(255, 110, 0, ${0.35 * pulse})`);
-      hearthGlow.addColorStop(0.7, `rgba(180, 30, 0, ${0.18 * pulse})`);
-      hearthGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-      ctx.save();
-      ctx.fillStyle = hearthGlow;
-      ctx.fillRect(0, canvas.height - hearthH * 1.5, canvas.width, hearthH * 1.5);
-      ctx.restore();
-
-      // 2. Smoke plumes (in background)
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-over';
-      for (let i = 0; i < smokeParticles.length; i++) {
-        smokeParticles[i].update();
-        smokeParticles[i].draw(ctx);
-      }
-      ctx.restore();
-
-      // 3. Flame Tongues with Additive Blending (Real combustion luminescence)
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (let i = 0; i < flameParticles.length; i++) {
-        flameParticles[i].update(frameCount);
-        flameParticles[i].draw(ctx);
-      }
-
-      // 4. Licking Base Flame Curves (Organic ribbon of fire)
-      ctx.beginPath();
-      const waveY = canvas.height * 0.94;
-      ctx.moveTo(canvas.width * 0.5 - hearthW * 0.5, waveY);
-      for (let x = canvas.width * 0.5 - hearthW * 0.5; x <= canvas.width * 0.5 + hearthW * 0.5; x += 15) {
-        const offset = Math.sin(x * 0.03 + frameCount * 0.08) * 12 +
-                       Math.cos(x * 0.06 - frameCount * 0.12) * 8;
-        ctx.lineTo(x, waveY + offset);
-      }
-      ctx.lineTo(canvas.width * 0.5 + hearthW * 0.5, canvas.height);
-      ctx.lineTo(canvas.width * 0.5 - hearthW * 0.5, canvas.height);
-      ctx.closePath();
-      const baseFlameGrad = ctx.createLinearGradient(0, waveY - 20, 0, canvas.height);
-      baseFlameGrad.addColorStop(0, `rgba(255, 200, 50, ${0.4 * pulse})`);
-      baseFlameGrad.addColorStop(0.5, `rgba(255, 90, 0, ${0.6 * pulse})`);
-      baseFlameGrad.addColorStop(1, `rgba(180, 20, 0, ${0.8 * pulse})`);
-      ctx.fillStyle = baseFlameGrad;
-      ctx.fill();
-
-      // 5. Flying Glowing Embers & Sparks
-      for (let i = 0; i < emberParticles.length; i++) {
-        emberParticles[i].update(frameCount);
-        emberParticles[i].draw(ctx, frameCount);
-      }
-      ctx.restore();
-
-      if (isFireRunning) {
-        fireAnimationId = requestAnimationFrame(render);
-      }
-    }
-
-    isFireRunning = true;
-    render();
-  }
+  let videoTimeout = null;
 
   function hideSplash() {
-    if (!splash) return;
+    if (!splash || splash.classList.contains('hidden-splash')) return;
     splash.classList.add('hidden-splash');
     splash.setAttribute('aria-hidden', 'true');
-    // Keep canvas low-power or pause until requested
-    setTimeout(() => {
-      isFireRunning = false;
-      if (fireAnimationId) {
-        cancelAnimationFrame(fireAnimationId);
-        fireAnimationId = null;
-      }
-    }, 800);
+    if (videoTimeout) {
+      clearTimeout(videoTimeout);
+      videoTimeout = null;
+    }
+    if (introVideo) {
+      try {
+        introVideo.pause();
+      } catch (_) {}
+    }
   }
 
   function showSplash() {
     if (!splash) return;
     splash.classList.remove('hidden-splash');
     splash.setAttribute('aria-hidden', 'false');
-    if (!isFireRunning) {
-      isFireRunning = true;
-      initFireCanvas();
+
+    if (introVideo) {
+      introVideo.currentTime = 0;
+      const playPromise = introVideo.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          introVideo.muted = true;
+          introVideo.play();
+        });
+      }
     }
+
+    // Safety fallback: auto-hide after 12s if video stalls
+    if (videoTimeout) clearTimeout(videoTimeout);
+    videoTimeout = setTimeout(hideSplash, 12000);
   }
 
-  if (skipBtn) {
-    skipBtn.addEventListener('click', hideSplash);
+  // Play immediately on load
+  if (introVideo) {
+    introVideo.play().catch(() => {
+      introVideo.muted = true;
+      introVideo.play().catch(() => {});
+    });
+
+    // When the video finishes, automatically enter the menu!
+    introVideo.addEventListener('ended', () => {
+      hideSplash();
+    });
   }
 
-  // Auto-hide splash after 3.2s
-  const autoHideTimer = setTimeout(hideSplash, 3200);
-
-  if (splash) {
-    splash.addEventListener('click', (e) => {
-      if (e.target.id !== 'skip') {
-        clearTimeout(autoHideTimer);
-        hideSplash();
+  // Sound toggle button
+  if (soundBtn && introVideo) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      introVideo.muted = !introVideo.muted;
+      if (soundIcon) {
+        if (introVideo.muted) {
+          soundIcon.className = 'ph-bold ph-speaker-simple-slash';
+        } else {
+          soundIcon.className = 'ph-bold ph-speaker-high text-brand-accent2';
+        }
       }
     });
   }
 
-  initFireCanvas();
+  // Skip button
+  if (skipBtn) {
+    skipBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      hideSplash();
+    });
+  }
+
+  // Click on splash also advances to menu
+  if (splash) {
+    splash.addEventListener('click', (e) => {
+      if (e.target.closest('#video-sound-btn') || e.target.closest('#skip')) return;
+      hideSplash();
+    });
+  }
+
+  // Safety fallback timer for first load
+  videoTimeout = setTimeout(hideSplash, 11000);
 
   // ==========================================
   // 2. CATERING MENUS WITH USER PHOTOS
@@ -509,16 +258,8 @@
             <p class="text-brand-text2 text-sm leading-relaxed mb-5">
               ${item.description}
             </p>
-
-            <div class="bg-black/40 rounded-xl p-4 border border-white/5 mb-6">
-              <p class="text-xs text-brand-accent2 uppercase font-bold tracking-wider mb-2.5 flex items-center gap-1.5">
-                <i class="ph-bold ph-check-circle text-sm text-brand-whatsapp"></i> Incluye en el servicio:
-              </p>
-              <ul class="text-xs md:text-sm text-brand-text1/90 space-y-1.5">
-                ${item.features.map((f) => `<li class="flex items-start gap-2"><span class="text-brand-primary font-bold">•</span><span>${f}</span></li>`).join('')}
-              </ul>
-            </div>
           </div>
+
 
           <div class="pt-4 border-t border-white/10 mt-auto">
             <div class="flex items-center justify-between text-xs text-brand-text2 mb-4">
@@ -626,7 +367,7 @@
                 ${g.subtitle}
               </p>
               <div class="flex items-center justify-between text-[11px] text-white/70 font-semibold pt-1 border-t border-white/10">
-                <span class="flex items-center gap-1"><i class="ph-bold ph-magnifying-glass-plus"></i> Ampliar foto</span>
+                <span class="flex items-center gap-1 text-brand-accent2"><i class="ph-bold ph-magnifying-glass-plus"></i> Ampliar & Zoom</span>
                 <span class="text-brand-whatsapp flex items-center gap-0.5"><i class="ph-bold ph-whatsapp"></i> Cotizar</span>
               </div>
             </div>
@@ -644,7 +385,7 @@
   }
 
   // ==========================================
-  // 4. LIGHTBOX MODAL FOR PHOTOS
+  // 4. LIGHTBOX MODAL WITH INTERACTIVE ZOOM
   // ==========================================
   let lightboxBackdrop = document.getElementById('lightbox-modal');
   if (!lightboxBackdrop) {
@@ -661,13 +402,34 @@
               <p id="lightbox-category" class="text-xs text-brand-accent2 uppercase font-bold tracking-wider"></p>
             </div>
           </div>
-          <button type="button" id="lightbox-close" class="text-brand-text2 hover:text-white p-2 text-2xl transition-colors" aria-label="Cerrar foto">
-            <i class="ph-bold ph-x"></i>
-          </button>
+
+          <!-- Zoom & Close Controls -->
+          <div class="flex items-center gap-3">
+            <div class="zoom-toolbar" role="toolbar" aria-label="Controles de zoom">
+              <button type="button" id="zoom-out" class="zoom-btn" title="Alejar (-)" aria-label="Alejar">
+                <i class="ph-bold ph-minus"></i>
+              </button>
+              <span id="zoom-level" class="zoom-level-badge">100%</span>
+              <button type="button" id="zoom-in" class="zoom-btn" title="Acercar (+)" aria-label="Acercar">
+                <i class="ph-bold ph-plus"></i>
+              </button>
+              <button type="button" id="zoom-reset" class="zoom-btn" title="Restablecer tamaño (100%)" aria-label="Restablecer tamaño">
+                <i class="ph-bold ph-arrow-counter-clockwise"></i>
+              </button>
+            </div>
+
+            <button type="button" id="lightbox-close" class="text-brand-text2 hover:text-white p-2 text-2xl transition-colors ml-1" aria-label="Cerrar foto">
+              <i class="ph-bold ph-x"></i>
+            </button>
+          </div>
         </div>
 
-        <div class="rounded-xl overflow-hidden max-h-[65vh] bg-black flex items-center justify-center mb-4 border border-white/10">
-          <img id="lightbox-img" src="" alt="" class="max-h-[65vh] w-auto max-w-full object-contain" />
+        <div id="lightbox-viewport" class="lightbox-viewport zoomable border border-white/10 mb-4">
+          <img id="lightbox-img" src="" alt="" draggable="false" />
+          <div class="absolute bottom-3 left-3 text-[11px] bg-black/80 px-3 py-1.5 rounded-full text-white/80 border border-white/10 pointer-events-none backdrop-blur-md flex items-center gap-1.5">
+            <i class="ph-bold ph-magnifying-glass-plus text-brand-primary"></i>
+            <span>Doble clic o rueda del mouse para hacer zoom · Arrastrá para mover</span>
+          </div>
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-1">
@@ -688,14 +450,185 @@
 
   const lightboxClose = document.getElementById('lightbox-close');
   const lightboxImg = document.getElementById('lightbox-img');
+  const lightboxViewport = document.getElementById('lightbox-viewport');
   const lightboxTitle = document.getElementById('lightbox-title');
   const lightboxCategory = document.getElementById('lightbox-category');
   const lightboxDesc = document.getElementById('lightbox-desc');
   const lightboxWaBtn = document.getElementById('lightbox-wa-btn');
 
+  const zoomInBtn = document.getElementById('zoom-in');
+  const zoomOutBtn = document.getElementById('zoom-out');
+  const zoomResetBtn = document.getElementById('zoom-reset');
+  const zoomLevelBadge = document.getElementById('zoom-level');
+
+  // Zoom and Pan State
+  let zoomLevel = 1;
+  const MIN_ZOOM = 1;
+  const MAX_ZOOM = 3.5;
+  const ZOOM_STEP = 0.35;
+  let panX = 0;
+  let panY = 0;
+  let isDragging = false;
+  let dragStartX = 0;
+  let dragStartY = 0;
+
+  function updateTransform(smooth = true) {
+    if (!lightboxImg) return;
+    if (smooth) {
+      lightboxImg.style.transition = 'transform 0.18s ease-out';
+    } else {
+      lightboxImg.style.transition = 'none';
+    }
+    lightboxImg.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomLevel})`;
+
+    if (zoomLevelBadge) {
+      zoomLevelBadge.textContent = `${Math.round(zoomLevel * 100)}%`;
+    }
+    if (zoomOutBtn) {
+      zoomOutBtn.disabled = zoomLevel <= MIN_ZOOM;
+    }
+    if (zoomInBtn) {
+      zoomInBtn.disabled = zoomLevel >= MAX_ZOOM;
+    }
+
+    if (lightboxViewport) {
+      if (zoomLevel > 1) {
+        lightboxViewport.classList.remove('zoomable');
+        lightboxViewport.classList.add('is-zoomed');
+      } else {
+        lightboxViewport.classList.remove('is-zoomed', 'is-dragging');
+        lightboxViewport.classList.add('zoomable');
+      }
+    }
+  }
+
+  function resetZoom() {
+    zoomLevel = 1;
+    panX = 0;
+    panY = 0;
+    isDragging = false;
+    updateTransform(true);
+  }
+
+  function setZoom(newZoom, centerX = 0, centerY = 0) {
+    const clamped = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, newZoom));
+    if (clamped === zoomLevel) return;
+
+    if (clamped === 1) {
+      panX = 0;
+      panY = 0;
+    } else {
+      // Adjust pan to zoom into the focal point
+      const scaleFactor = clamped / zoomLevel;
+      panX = panX * scaleFactor;
+      panY = panY * scaleFactor;
+    }
+
+    zoomLevel = clamped;
+    clampPan();
+    updateTransform(true);
+  }
+
+  function clampPan() {
+    if (!lightboxViewport || !lightboxImg) return;
+    const vpRect = lightboxViewport.getBoundingClientRect();
+    const maxPanX = Math.max(0, (vpRect.width * (zoomLevel - 1)) / 2);
+    const maxPanY = Math.max(0, (vpRect.height * (zoomLevel - 1)) / 2);
+
+    panX = Math.max(-maxPanX, Math.min(maxPanX, panX));
+    panY = Math.max(-maxPanY, Math.min(maxPanY, panY));
+  }
+
+  if (zoomInBtn) {
+    zoomInBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setZoom(zoomLevel + ZOOM_STEP);
+    });
+  }
+
+  if (zoomOutBtn) {
+    zoomOutBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setZoom(zoomLevel - ZOOM_STEP);
+    });
+  }
+
+  if (zoomResetBtn) {
+    zoomResetBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetZoom();
+    });
+  }
+
+  // Double click toggles 1x and 2x zoom
+  if (lightboxViewport) {
+    lightboxViewport.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      if (zoomLevel > 1) {
+        resetZoom();
+      } else {
+        setZoom(2.2);
+      }
+    });
+
+    // Wheel zoom
+    lightboxViewport.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? ZOOM_STEP : -ZOOM_STEP;
+      setZoom(zoomLevel + delta);
+    }, { passive: false });
+
+    // Pointer events for smooth drag / pan when zoomed
+    lightboxViewport.addEventListener('pointerdown', (e) => {
+      if (zoomLevel <= 1) {
+        // Single click when 1x can zoom in to 1.8x
+        return;
+      }
+      isDragging = true;
+      dragStartX = e.clientX - panX;
+      dragStartY = e.clientY - panY;
+      lightboxViewport.classList.add('is-dragging');
+      lightboxViewport.setPointerCapture(e.pointerId);
+    });
+
+    lightboxViewport.addEventListener('pointermove', (e) => {
+      if (!isDragging || zoomLevel <= 1) return;
+      panX = e.clientX - dragStartX;
+      panY = e.clientY - dragStartY;
+      clampPan();
+      updateTransform(false);
+    });
+
+    const stopDragging = (e) => {
+      if (!isDragging) return;
+      isDragging = false;
+      if (lightboxViewport) {
+        lightboxViewport.classList.remove('is-dragging');
+        try {
+          lightboxViewport.releasePointerCapture(e.pointerId);
+        } catch (_) {}
+      }
+      clampPan();
+      updateTransform(true);
+    };
+
+    lightboxViewport.addEventListener('pointerup', stopDragging);
+    lightboxViewport.addEventListener('pointercancel', stopDragging);
+
+    // Single click on image toggles zoom if not dragging
+    lightboxViewport.addEventListener('click', (e) => {
+      if (e.target.closest('.zoom-toolbar') || e.target.closest('#lightbox-close')) return;
+      if (zoomLevel === 1) {
+        setZoom(1.8);
+      }
+    });
+  }
+
   function openLightbox(index) {
     const item = galleryItems[index];
     if (!item) return;
+
+    resetZoom();
 
     lightboxImg.src = item.src;
     lightboxImg.alt = item.title;
@@ -714,6 +647,7 @@
   function closeLightbox() {
     if (lightboxBackdrop) {
       lightboxBackdrop.classList.remove('active');
+      resetZoom();
     }
   }
 

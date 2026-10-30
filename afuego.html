@@ -20,16 +20,31 @@ tailwind.config={theme:{extend:{colors:{brand:{black:'#0D0D0D',primary:'#F4511E'
 </head>
 <body class="font-body antialiased selection:bg-brand-whatsapp selection:text-white pb-24 bg-[#0D0D0D] text-brand-text1">
 
-<!-- Realistic Fire Splash Screen -->
+<!-- Intro Video Screen (Full Screen Brand Video) -->
 <div id="splash" aria-hidden="true">
-  <div id="logo">
-    <div class="em">🔥</div>
-    <h1 class="font-display text-5xl md:text-8xl font-bold tracking-wider uppercase leading-none mt-3 text-white">A Todo <span class="text-fire">Fuego</span></h1>
-    <p class="text-brand-accent2 font-bold text-xs md:text-sm tracking-[.35em] uppercase mt-4">Parrilla & Catering Gourmet</p>
-  </div>
-  <canvas id="fire"></canvas>
-  <div class="splash-controls">
-    <button id="skip" type="button">Ingresar al Menú</button>
+  <div class="video-intro-container">
+    <video 
+      id="intro-video" 
+      src="/public/assets/aistudio/WhatsApp_Video_2026-10-30_at_2.47.19_PM_92bc177f.mp4" 
+      autoplay 
+      muted 
+      playsinline 
+      preload="auto"
+      class="intro-video-element"
+    ></video>
+
+    <!-- Sound Toggle -->
+    <div class="video-controls-overlay">
+      <button id="video-sound-btn" type="button" class="video-icon-btn" title="Activar / Silenciar sonido" aria-label="Activar o silenciar sonido">
+        <i class="ph-bold ph-speaker-simple-slash" id="sound-icon"></i>
+      </button>
+    </div>
+
+    <!-- Skip / Enter Button -->
+    <button id="skip" type="button" class="video-skip-btn">
+      <span>Ingresar al Menú</span>
+      <i class="ph-bold ph-arrow-right"></i>
+    </button>
   </div>
 </div>
 
